@@ -1,0 +1,40 @@
+---
+title: "ch 9.7 example"
+author: "Jin Kweon"
+date: "4/9/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+interval <-  c(seq(from = 3.2, to = 5.3, by = 0.1 ))
+frequency <- c(2, 1, 3, 2, 7, 8, 8, 14, 14, 18, 16, 15, 10, 8, 8, 6, 4, 1, 1, 1, 4, 1)
+
+data <- data.frame(interval, frequency)
+
+data %>% mutate(total = interval * frequency)
+summ <- sum(data)
+
+lambda <- summ/sum(frequency)
+
+entire_list <- c()
+for (i in 1:length(frequency)){
+  entire_list <- c(entire_list, rep(interval[i], frequency[i]))
+}
+
+sigma <- sqrt((1/(sum(frequency))) * sum((entire_list - lambda)**2))
+
+order <- (1:sum(frequency))/(sum(frequency)+1)
+theoretical <- qnorm(order, mean = lambda, sd = sigma)
+
+observed <- sort(entire_list)
+
+data <- data.frame(observed, theoretical)
+ggplot(data, aes(x = theoretical, y = observed)) + geom_point()
+```
+

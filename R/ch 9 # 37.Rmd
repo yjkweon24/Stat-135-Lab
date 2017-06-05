@@ -1,0 +1,30 @@
+---
+title: 'Ch9 - #37'
+author: "Jin Kweon"
+date: "3/16/2017"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+table <- data.frame(c("Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep","Oct", "Nov", "Dec"),
+                 c(1668, 1407, 1370, 1309, 1341, 1338, 1406, 1446, 1332, 1363, 1410, 1526))
+colnames(table) <- c("Month", "Num of Deaths")
+
+
+options(scipen=999) # No scientific notation
+
+summing <- sum(table$`Num of Deaths`)
+Expected <- summing/12
+difference <- table$`Num of Deaths` - Expected
+each_chi <- difference^2 / Expected
+chi <- sum(difference^2 / Expected)
+
+
+table2 <- data.frame(table$`Num of Deaths`, Expected, difference, each_chi)
+colnames(table2) <- c("Obs", "Exp", "Obs - Exp", "Each chi")
+xtable(table2)
+```

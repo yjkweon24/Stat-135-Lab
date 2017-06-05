@@ -1,0 +1,174 @@
+---
+title: "Problems from Ch 9"
+author: "R Andrew Nichol"
+date: "March 16, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+
+#Problem 9.11.55
+
+
+I am only going to include one plot for each part in the interest of saving paper.
+##Standard Normal
+```{r}
+prob_plot_normal <- function(n = 1000){
+  sample <- sort(rnorm(n, 0, 1))
+  orders <- 1:n / (n+1)
+  transformed <- qnorm(orders, 0, 1) #Gives u CDF inverse (quantile function)
+  df <- data.frame(Observed = sample, Expected = transformed)
+  df %>% ggplot(aes(x = Expected, y = Observed)) + geom_point() + 
+    ggtitle(paste0("Standard Normal, n = ", n))
+}
+
+#prob_plot_normal(25)
+#prob_plot_normal(50)
+prob_plot_normal(100)
+```
+
+##Chi Squared
+
+```{r}
+prob_plot_chi <- function(n=1000){
+  sample <- sort(rchisq(n, 10))
+  orders <- 1:n / (n+1)
+  transformed <- qchisq(orders, 10)
+  df <- data.frame(Observed = sample, Expected = transformed)
+  df %>% ggplot(aes(x = Expected, y = Observed)) + geom_point() + 
+    ggtitle(paste0("Chi-Squared w/10 df, n = ", n))
+  
+}
+
+#prob_plot_chi(25)
+#prob_plot_chi(50)
+prob_plot_chi(100)
+
+```
+
+##Y = Z/U where Z ~ N(0,1) and U ~ U[0,1]. Z and U are independent.
+
+```{r}
+sim <- sort(rnorm(10000, 0, 1) / runif(10000, 0, 1))
+
+prob_plot_special <- function(n = 1000){
+  z_sample <- rnorm(n, 0, 1)
+  u_sample <- runif(n, 0, 1)
+  y_sample <- sort(z_sample / u_sample)
+  orders <- 1:n / (n+1)
+  # I don't know the CDF of this distribution, so it would
+  # be very hard to deduce from the inverse CDF. I suppose I will
+  # have to simulate these quantiles (see simulated large sample above)...
+  transformed <- sim[ceiling(orders * 10000)]
+  df <- data.frame(Observed = y_sample, Expected = transformed)
+  df %>% ggplot(aes(x = Expected, y = Observed)) + geom_point() + 
+    ggtitle(paste0("Normal(0,1) / Unif[0,1] , n = ", n))
+}
+
+#prob_plot_special(25)
+#prob_plot_special(50)
+prob_plot_special(100)
+```
+Very prone to outliers here, since small values generated from the 
+uniform can lead to very extreme values of Z/U.
+
+## Standard Uniform
+
+```{r}
+prob_plot_unif <- function(n=1000){
+  sample <- sort(runif(n, 0, 1))
+  orders <- 1:n / (n+1)
+  transformed <- qunif(orders, 0, 1)
+  df <- data.frame(Observed = sample, Expected = transformed)
+  df %>% ggplot(aes(x = Expected, y = Observed)) + geom_point() + 
+    ggtitle(paste0("Unif[0,1], n = ", n))
+}
+
+#prob_plot_unif(25)
+#prob_plot_unif(50)
+prob_plot_unif(100)
+```
+
+## Standard Exponential
+
+```{r}
+prob_plot_exp <- function(n=1000){
+  sample <- sort(rexp(n, 1))
+  orders <- 1:n / (n+1)
+  transformed <- qexp(orders, 1)
+  df <- data.frame(Observed = sample, Expected = transformed)
+  df %>% ggplot(aes(x = Expected, y = Observed)) + geom_point() + 
+    ggtitle(paste0("Exp(1), n = ", n))
+}
+
+#prob_plot_exp(25)
+#prob_plot_exp(50)
+prob_plot_exp(100)
+```
+
+## Can I distinguish between the probability plot of the normal distribution and the subsequent distribution probability plots?
+
+Yes I can.
+
+#Problem 9.11.58
+
+$\lambda_{mle} = 1/\bar X$
+
+```{r}
+# Find the average of each interval to give us a way to classify our observations.
+interval_avgs <- c(30, 90, 150.5, 212, 274.5, 337.5, 400.5, 464.5, 529.5,
+595, 663, 909.5, 1422, 1919.5, 2346, 2805.5, 3303, 3846, 4444, 5109, 5857.5, 6713, 7717, 8925, 10447, 12511.5, 14033, 14698, 15447, 16304, 
+17306, 18514, 20036, 22101, 25374, 27439)
+
+frequencies <- c(115, 104, 99, 106, 113, 104, 101, 106, 104, 96, 512, 
+                 524, 468, 531, 461, 526, 506, 509, 520, 540, 542, 499,
+                 494, 500, 550, 465, 104, 97, 101, 104, 92, 102, 103, 110,
+                 112, 100)
+
+data <- data.frame(intervals = interval_avgs, frequencies = frequencies)
+
+data <- data %>% mutate(totals = intervals * frequencies)
+
+# Solve for X_bar and mle (1/X_bar)
+X_bar <- sum(data$totals) / sum(data$frequencies)
+
+lambda_mle <- 1/X_bar
+
+# From our average intervals and frequencies, we create a list of data
+# that replicates each average interval the number of times that data
+# were observed in this interval.
+vectorize_data <- function(values, freqs){
+  vector <- numeric(0)
+  for(i in 1:length(values)){
+    vector <- c(vector, rep(values[i], freqs[i])) # value i 가 있는 frequency 만큼 나열 함
+  }
+  vector
+}
+#> x<-c(1,2,3,4)
+#> y<-c(5,6,7,8)
+#> rep(x,y)
+# [1] 1 1 1 1 1 2 2 2 2 2 2 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4
+
+observed <- vectorize_data(data$intervals, data$frequencies)
+
+# Standard probability plot procedure.
+orders <- 1:10220 / (10221)
+transformed <- qexp(orders, rate = lambda_mle)
+
+# Removing the last cell to observe the linearity of the plot 
+# (since the last cell is very inclusive and therefore likely
+# not graphically representative of the data)
+plottable <- data.frame(Observed = observed[1:10120], Expected = transformed[1:10120])
+
+# and plot...
+plottable %>% ggplot(aes(x = Expected, y = Observed)) + 
+  geom_point() 
+
+
+```
+
+The probability plot looks pretty linear. It also does have a lot of the density focused in lower values of the plot, as is expected. From first glance, it does seem reasonable that this data may be distributed according to an underlying exponential distribution. 

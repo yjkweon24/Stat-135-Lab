@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+author: "Jin Kweon"
+date: "4/6/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+#A
+```{r}
+
+table <- data.frame(c(3.03, 5.53, 5.60, 9.30, 9.92, 12.51, 12.95, 15.21, 16.04, 16.84),
+                    c(3.19, 4.26, 4.47, 4.53, 4.67, 4.69, 12.78, 6.79, 9.37, 12.75))
+colnames(table) <- c("Type1", "Type2")
+
+#We get the mean and stdv for each type.
+
+mean1 <- mean(table$Type1)
+mean2 <- mean(table$Type2)
+
+sd1 <- sd(table$Type1)
+sd2 <- sd(table$Type2)
+
+t.test(table$Type1, table$Type2)
+# This might be little bit different with the method by hands, since they approximate (assumed the variance are different from two population groups) degree of freedom and also, they did not use pooled variance. But this should be approximately give the right answers.
+
+# p = 0.05408
+```
+
+#B
+```{r}
+# Rather than using the rank sum test by hands and use appendix B at the back of the textbook, I will use the function embedded in R.
+wilcox.test(table$Type1, table$Type2)
+```
+
+#C
+```{r}
+#Since the sample sizes of the two groups are small so, it is better to go with non-parametric method.
+qqnorm(table$Type1)
+qqnorm(table$Type2)
+# They do not both look like quite normal
+```
+
+
+#D
+```{r}
+#Tries to find the estimated probability where Type 1 bears more than Type 2 for this question.
+# http://www.endmemo.com/program/R/outer.php
+ty <- outer(table$Type1, table$Type2, ">")
+Ty <- sum(ty)/ 100 #100 is the number of rows for type 1 * number of the rows for type 2
+
+Ty
+```
+
+#E
+```{r}
+type1sample <- replicate(n = 1000, sample(table$Type1, size = 10, replace = T))
+type2sample <- replicate(n = 1000, sample(table$Type2, size = 10, replace = T))
+a <- c(0)
+
+for (i in 1:1000){
+  a[i] <- sum(outer(type1sample[,i], type2sample[,i], ">"))/100
+}
+
+sd(a)
+```
+
+
+#F
+```{r}
+qqnorm(a) #It looks approximately normal!
+
+#Find 95% CI.
+
+CI <- c(mean(a) - qnorm(0.975)*sd(a), mean(a) + qnorm(0.975)*sd(a))
+
+CI
+```
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+---
+title: 'Ch9 - #39'
+author: "Jin Kweon"
+date: "3/16/2017"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+table <- data.frame(c(137, 150, 163, 201, 269, 155, 142, 146, 148, 110))
+colnames(table) <- c("Bites")
+
+prob <- 1/29
+options(scipen=999) # No scientific notation
+
+summing <- sum(table$`Num of Deaths`)
+Expected <- summing/12
+difference <- table$`Num of Deaths` - Expected
+each_chi <- difference^2 / Expected
+chi <- sum(difference^2 / Expected)
+
+
+table2 <- data.frame(table$`Num of Deaths`, Expected, difference, each_chi)
+colnames(table2) <- c("Obs", "Exp", "Obs - Exp", "Each chi")
+xtable(table2)
+```

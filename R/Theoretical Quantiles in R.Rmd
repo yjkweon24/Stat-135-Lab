@@ -1,0 +1,24 @@
+---
+title: "Theoretical Quantiles"
+author: "Stat 135"
+date: "March 23, 2017"
+output: pdf_document
+---
+
+#How to generate a probability plot in R using ppoints:
+
+```{r}
+
+n <- 100
+
+data <- rexp(n)
+
+ordered_observations <- sort(data)
+
+theoretical_quantiles_of_log_normal_distribution <- qlnorm(ppoints(n))
+
+plot(theoretical_quantiles_of_log_normal_distribution
+     , ordered_observations)
+
+
+```

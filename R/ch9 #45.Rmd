@@ -1,0 +1,33 @@
+---
+title: 'Ch9 # 45'
+author: "Jin Kweon"
+date: "3/16/2017"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+table <- data.frame(c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                 c(7, 45, 181, 478, 829, 1112, 1343, 1033, 670, 286, 104, 24, 3))
+colnames(table) <- c("Number", "Frequency")
+
+options(scipen=999) # No scientific notation
+
+
+Product <- table$Number * table$Frequency
+summing <- sum(Product)
+mle <- summing / (6115 * 12)
+
+Expected <- 6115 * dbinom(0:12, 12 ,mle) # Binomial (12, mle) -> x is from 0 ~ 12
+difference <- table$Frequency - Expected
+each_chi <- difference^2 / Expected
+chi <- sum(difference^2 / Expected)
+
+
+table2 <- data.frame(table$Frequency, Expected, difference, each_chi)
+colnames(table2) <- c("Obs", "Exp", "Obs - Exp", "Each chi")
+xtable(table2)
+```

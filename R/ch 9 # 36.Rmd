@@ -1,0 +1,27 @@
+---
+title: 'Stat135- ch9 # 36'
+author: "Jin Kweon"
+date: "3/15/2017"
+output: html_document
+---
+```{r}
+library(ggplot2)
+```
+
+```{r}
+table <- data.frame(c("Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep","Oct", "Nov", "Dec"),
+                 c(1867, 1789, 1944, 2094, 2097, 1981, 1887, 2024, 1928, 2032, 1978, 1859),
+                 c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31))
+colnames(table) <- c("Month", "Num of Suicides", "Days")
+
+summing <- sum(table$`Num of Suicides`)
+Expected <- (summing/365) * (table$Days)
+difference <- table$`Num of Suicides` - Expected
+each_chi <- difference^2 / Expected
+chi <- sum(difference^2 / Expected)
+
+
+table2 <- data.frame(table$`Num of Suicides`, Expected, difference, each_chi)
+colnames(table2) <- c("Obs", "Exp", "Obs - Exp", "Each chi")
+xtable(table2)
+```

@@ -1,0 +1,18 @@
+---
+title: "ch 7.7.58"
+author: "Jin Kweon"
+date: "2/3/2017"
+output: html_document
+---
+
+```{r}
+x <-c()
+value <-c()
+for (i in 1: 100){
+  value[i] = (mean(sample(1:100, 12)))
+}
+for (i in 1: 100){
+  x <- c(x, value[i])
+}
+hist(x)
+```

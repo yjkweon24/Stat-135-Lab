@@ -1,0 +1,13 @@
+```{r}
+setwd("/Users/yjkweon24/Desktop/Cal/2017 Spring/Stat 135")
+library(ggplot2)
+cancer <- read.csv("Data/cancer.txt", 
+                   header = FALSE)
+
+length(cancer$V1)
+mean(cancer$V1)
+hist(cancer$V1, main = "Histogram", xlab="cancer mortalities")
+
+cancer_sample <-sample(cancer$V1, 20)
+mean(cancer_sample)
+```

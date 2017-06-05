@@ -1,0 +1,78 @@
+---
+title: 'Ch9 # 58'
+author: "Jin Kweon"
+date: "3/16/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Method 1
+```{r}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(dplyr)
+
+#Get middle values
+table <- data.frame(c(30, 90, 150.5, 212, 274.5, 337.5, 400.5, 464.5, 529.5, 595, 663,
+                      909.5, 1422, 1919.5, 2346, 2805.5, 3303, 3846, 4444, 5109, 5857.5,
+                      6714.5, 7717, 8925, 10447, 12511.5,14033, 14698, 15447, 16304,
+                      17306, 18514, 20036, 22101, 25374, 27439),
+                    c(115, 104, 99, 106, 113, 104, 101, 106, 104, 96, 512, 524, 468, 531, 461,
+                      526, 506, 509, 520, 540, 542, 499, 494, 500, 550, 465, 104, 97, 101,
+                      104, 92, 102, 103, 110, 112, 100) )
+
+colnames(table) <- c("interval", "frequency")
+
+table <- table %>% mutate(summing = interval*frequency)
+
+xbar <- sum(table$summing) / (sum(table$frequency))
+
+lambda <- 1/xbar
+
+order <- (1:sum(table$frequency)) / (sum(table$frequency) + 1) 
+
+entry <- c()
+entry <- c(entry, rep(table$interval, table$frequency))
+entry <- sort(entry)
+
+inverseq <- qexp(order, lambda)
+newdata <- data.frame(observed = entry, theoretical = inverseq)
+ggplot(newdata, aes(x = newdata$theoretical, y = newdata$observed)) + geom_point()
+```
+
+
+Method2 
+```{r}
+table <- data.frame(c(30, 90, 150.5, 212, 274.5, 337.5, 400.5, 464.5, 529.5, 595, 663,
+                      909.5, 1422, 1919.5, 2346, 2805.5, 3303, 3846, 4444, 5109, 5857.5,
+                      6714.5, 7717, 8925, 10447, 12511.5,14033, 14698, 15447, 16304,
+                      17306, 18514, 20036, 22101, 25374, 27439),
+                    c(115, 104, 99, 106, 113, 104, 101, 106, 104, 96, 512, 524, 468, 531, 461,
+                      526, 506, 509, 520, 540, 542, 499, 494, 500, 550, 465, 104, 97, 101,
+                      104, 92, 102, 103, 110, 112, 100) )
+
+colnames(table) <- c("interval", "frequency")
+
+table <- table %>% mutate(summing = interval*frequency)
+
+xbar <- sum(table$summing) / (sum(table$frequency))
+
+lambda <- 1/xbar
+
+order <- (1:sum(table$frequency)) / (sum(table$frequency) + 1) 
+
+inverseexp <- -1 * (1 / lambda) * log(1 - order)
+
+entry <- c()
+entry <- c(entry, rep(table$interval, table$frequency))
+entry <- sort(entry)
+
+newdata <- data.frame(observed = entry, theoretical = inverseexp)
+newdata %>% ggplot(aes(x = newdata$theoretical, y = newdata$observed)) + geom_line()
+```
+
+
+
+

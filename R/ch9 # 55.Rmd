@@ -1,0 +1,131 @@
+---
+title: 'Ch9 #55'
+author: "Jin Kweon"
+date: "3/16/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+A)
+```{r}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(distr)
+library(rmutil)
+# rnorm -> random number from normal distr
+generator <- data.frame(first = rnorm(25, mean = 0, sd = 1),
+                        second = rnorm(50, mean = 0, sd = 1),
+                        third = rnorm(100, mean = 0, sd = 1))
+# stat_qq and geom_qq build up sample and theoretical quantiles. 
+graph1 <- ggplot (generator) + geom_qq(aes(sample = first)) 
+graph2 <- ggplot (generator) + geom_qq(aes(sample = second)) 
+graph3 <- ggplot (generator) + geom_qq(aes(sample = third)) 
+
+grid.arrange(graph1, graph2, graph3, ncol = 3) # multiplot works as well 
+
+
+n = 1000
+observed <- rnorm(1000, mean = 0, sd = 1)
+sorted <- sort(observed)
+order <- (1:n) / (n+1)
+theoretical <- qnorm(order, mean = 0, sd = 1)
+datacreated <- data.frame(observed = sorted, Expected = theoretical)
+
+ggplot(datacreated, aes(x = Expected, y = observed)) + geom_point()
+
+
+generator <- data.frame(first = rlaplace(1000, m = 0, s = 1)) #double exponential
+
+plot(lm(generator$first ~ theoretical))
+```
+
+
+
+B)
+```{r}
+# rchisq -> random number from chi-square dist
+generator <- data.frame(first = rchisq(25, df = 10),
+                        second = rchisq(50, df = 10),
+                        third = rchisq(100, df = 10))
+# stat_qq and geom_qq build up sample and theoretical quantiles. 
+graph1 <- ggplot (generator) + geom_qq(aes(sample = first)) 
+graph2 <- ggplot (generator) + geom_qq(aes(sample = second)) 
+graph3 <- ggplot (generator) + geom_qq(aes(sample = third)) 
+
+grid.arrange(graph1, graph2, graph3, ncol = 3) # multiplot works as well 
+```
+
+
+C)
+```{r}
+# runi -> random number from unif distr
+Z <- data.frame(first = rnorm(25, mean = 0, sd = 1),
+                        second = rnorm(50, mean = 0, sd = 1),
+                        third = rnorm(100, mean = 0, sd = 1))
+
+U <- data.frame(first = runif(25, 0, 1),
+                        second = runif(50, 0, 1),
+                        third = runif(100, 0, 1))
+
+Y <- Z / U
+
+# stat_qq and geom_qq build up sample and theoretical quantiles. 
+graph1 <- ggplot (Y) + geom_qq(aes(sample = first)) 
+graph2 <- ggplot (Y) + geom_qq(aes(sample = second)) 
+graph3 <- ggplot (Y) + geom_qq(aes(sample = third)) 
+
+grid.arrange(graph1, graph2, graph3, ncol = 3) # multiplot works as well 
+```
+
+
+D)
+```{r}
+generator4 <- data.frame(first = runif(25, 0, 1),
+                        second = runif(50, 0, 1),
+                        third = runif(100, 0, 1))
+
+
+# stat_qq and geom_qq build up sample and theoretical quantiles. 
+graph1 <- ggplot (generator4) + geom_qq(aes(sample = first)) 
+graph2 <- ggplot (generator4) + geom_qq(aes(sample = second)) 
+graph3 <- ggplot (generator4) + geom_qq(aes(sample = third)) 
+
+grid.arrange(graph1, graph2, graph3, ncol = 3) # multiplot works as well 
+```
+
+
+E)
+```{r}
+# rexp -> random number from exponential distr
+generator5 <- data.frame(first = rexp(25, 4),
+                        second = rexp(50, 4),
+                        third = rexp(100, 4))
+
+
+# stat_qq and geom_qq build up sample and theoretical quantiles. 
+graph1 <- ggplot (generator5) + geom_qq(aes(sample = first)) 
+graph2 <- ggplot (generator5) + geom_qq(aes(sample = second)) 
+graph3 <- ggplot (generator5) + geom_qq(aes(sample = third)) 
+
+grid.arrange(graph1, graph2, graph3, ncol = 3) # multiplot works as well 
+```
+
+
+F)
+$Chi\ Square\ is\ right\ skewed.\ Positive\ value\ only!!!!$
+$\\$
+$Z/U\ is\ heavy-tailed!!!$
+$\\$
+$Uniform\ is\ light-tailed!!!\ From\ Zero\ to\ One!!!$
+$\\$
+$Exponential\ is\ right\ skewed.\ From\ Zero\ to\ One!!!$
+$\\$
+$The\ more\ plots,\ the\ graph\ looks\ more\ obvious!!!$
+
+
+
+
+
+

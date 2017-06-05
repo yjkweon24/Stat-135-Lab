@@ -1,0 +1,63 @@
+---
+title: "14.9.3"
+author: "Jin Kweon"
+date: "4/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+set.seed(123)
+points <- rnorm(200)
+plot (points)
+abline(a= 1, b= 0.018, col = "red")
+abline(a= -1, b = -0.024, col = "blue")
+
+
+n = 200
+var <- seq(from =1, to = 10, length.out = n)
+set.seed(123)
+y <- sqrt(var) * rnorm(n)
+plot(y)
+abline(a = 2, b= 0.00025, col = "red")
+abline(a = -2, b= -0.00025, col = "blue")
+
+#ch 14 - #3
+a <- read.csv("/Users/yjkweon24/Desktop/Cal/2017Spring/Stat 135/Data/barium.csv")
+temp <- a[,1]
+pressure <- a[,2]
+plot(pressure)
+plot(temp, pressure)
+
+pressure2<- log(pressure)
+reciprocal<- 1 / temp
+plot(reciprocal, pressure2)
+a<- lm(pressure2 ~ reciprocal)
+summary(a)
+a
+plot(a)
+# we reject null: where beta_0 and beta_1 are equal to zero.
+```
+$\beta_0$ and $\beta_1$ are not equal to zero
+```{r}
+plot(reciprocal, pressure2)
+abline(a$coefficients, col = "Red")
+
+plot(pressure2, a$residuals, col = "blue") # residuals, show no specific pattern, and seem to be homoscedastic, and thus, assumed to be zero. 
+
+```
+
+```{r}
+#check normality
+qqnorm(a$residuals)
+qqline(a$residuals, col = "red")
+
+```
+
+
+
+

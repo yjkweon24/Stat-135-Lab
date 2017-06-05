@@ -1,0 +1,103 @@
+---
+title: "Chapter 14 Problem 37"
+author: "Stat 135"
+date: "April 21, 2017"
+output:
+  pdf_document: default
+---
+
+```{r}
+
+#posted on bcourses >section notes > barium.csv
+#demonstrate what constant variance looks like when we look at residual plot
+
+set.seed(123)
+my.homoscedastic.errors <-rnorm(200)
+
+plot(my.homoscedastic.errors)
+abline(a = 1.5, b = 0, col = "red")
+abline(a = -1.5, b = 0, col = "red")
+#homoscedastic means same spread (we are checking for constant variance assumption)
+
+```
+
+```{r}
+#heteroscedastic errors (non-constant variance)
+n <- 200
+my.vars <- seq(from =1, to = 10, length.out =n)
+my.heteroscedastic.errors <- sqrt(my.vars)*rnorm(n)
+plot(my.heteroscedastic.errors)
+abline(a = 2, b = 0.025, col = "red")
+abline(a = -2, b = -0.018, col = "red")
+#here we see violation of constant variance assumption
+
+```
+
+Problem 37 in chapter 14
+Dissociation pressure for a reaction involving barium nitride was recorded as a function of temperature. The second law of thermodynamics gives the approximate relationship
+
+$$ln(pressure) = A + \frac{B}{T}$$
+where T is absolute temperature. From the data file barium.csv, estimate A and B and their standard errors. Examine residuals and comment.
+
+```{r}
+barium <- read.csv("barium.csv")
+head(barium)
+nrow(barium) #32 samples
+
+#first thing we always do is plot the data to see if fitting a linear regression line makes sense
+temp <- barium[,1]
+temp
+pressure <- barium[,2]
+pressure
+plot(temp, pressure)
+
+log_pressure <- log(pressure)
+x <- 1/temp
+
+plot(x, log_pressure) #now we have a linear relationship
+
+#how do we fit a linear model to the data?
+lm.barium <- lm(log_pressure ~ x)
+summary(lm.barium)
+#null hypothesis: A(intercept) = 0, B(slope) = 0
+#we look at the t values and p-values to see if we reject the null hypothesis or not.
+#in this case, we reject H_0
+#t has n-2 df which in our case is 32-2 = 30.
+```
+
+```{r}
+
+plot(x, log_pressure)
+abline(lm.barium$coefficients, col = "red") #regression line
+
+```
+
+```{r}
+#model diagnostics
+#plot residuals vs y_hat
+plot(lm.barium$fitted.values, lm.barium$residuals)
+plot(x, lm.barium$residuals)
+#we see more or less constant variance and we dont see any specific pattern to the data
+#we also see that the residuals are symmetric about zero (more or less)
+
+```
+
+```{r}
+#check for normality of errors by doing a probability plot
+qqnorm(lm.barium$residuals)
+qqline(lm.barium$residuals)
+#you can see that it's approximately normal
+
+#why do we have to check for normality of the residuals?
+#because we use the normal distribution to do hypothesis testing and create ci's.
+
+```
+
+
+
+
+
+
+
+
+
