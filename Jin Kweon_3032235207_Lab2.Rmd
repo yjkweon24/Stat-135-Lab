@@ -1,0 +1,245 @@
+---
+title: "Jin Kweon_3032235207_Lab2"
+author: "Jin Kweon"
+date: "4/7/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+# Use warn.conflicts just in case warning ups when running a package.
+library(ggplot2, warn.conflicts =  FALSE)
+library(MASS, warn.conflicts =  FALSE)
+library(boot, warn.conflicts =  FALSE)
+library(stats, warn.conflicts =  FALSE)
+
+
+# Exclude warnings. 
+options(warn=-1)
+```
+
+
+#Data import
+```{r}
+bodydata <- read.csv("/bodytemp.txt", header = TRUE, dec = ",", stringsAsFactors = FALSE)
+options(digits=9, stringsAsFactors = FALSE)
+
+# My default of the labtop is changing every data imported to characters, so I manuallly 
+# changed all the data to numeric, as you can see it below.
+for (i in 1:3){
+  bodydata[,i] <- as.numeric(bodydata[,i])
+}
+
+```
+
+$\\$
+Check normality of data: 1. temperature (mixed) 2. temperature (male) 3. temperature (female) 4. heart rate (mixed) 5. heart rate (male) 6. heart rate (female)
+```{r}
+qqnorm(bodydata$temperature) #1
+qqline(bodydata$temperature) 
+
+qqnorm(bodydata$temperature[1:65]) #2
+qqline(bodydata$temperature[1:65])
+
+qqnorm(bodydata$temperature[66:130]) #3
+qqline(bodydata$temperature[66:130])
+
+qqnorm(bodydata$rate) #4
+qqline(bodydata$rate)
+
+qqnorm(bodydata$rate[1:65]) #5
+qqline(bodydata$rate[1:65])
+
+qqnorm(bodydata$rate[66:130]) #6
+qqline(bodydata$rate[66:130])
+
+```
+
+Generally, female's data (for both heart rate and temeperature) are skewed.
+$\\$
+
+#A
+```{r}
+
+temp_mean <- mean(bodydata$temperature) #Get mean of temperature
+temp_sd <- sd(bodydata$temperature) #Get standard deviation of temeperature
+
+simulation_provider <- function(){
+  mean_simulation1 <- rnorm(n = length(bodydata$temperature), mean = temp_mean, sd = temp_sd)
+
+  qqnorm(sort(mean_simulation1), main = "Temparature Normality of male and female") 
+  #do not have to "sort"!
+  qqline(mean_simulation1)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider()
+}
+
+```
+
+First of all, the most important thing for judging the variability of these plots is to compare those five samples with the normal qq plots with the original data. We saw the original data was following the normal quite well, and we got mean and variance from original data and do qqnorm five times. Then, those five times of qqnorm samples should look similar with qqnorm with the original data, to conclude that our original data has pretty decent variability. And, our samples turned out to be! There are two says of justifying these. First (easy one), is just simply comparing the graphs by just observing them. Second (hard way), is do divide by sections and get observations of the points (from orignal data) and get points from one sample (theoretical) and check goodness-of-fit test/Pearson's chi square test five times (since I decide to have five samples), but the GSIs told me this test is not required for this question, so I just concluding the answer of variability visual way only!
+
+So this is how I did. To check the normality, I get the mean of temeperatures for both female and male's body temepratures. (since i need matching parameters from my original data) First, I use rnorm to with those mean and sample derived from the simulation. Second, just to visually check whether the temperatures are normally distributed, I used qqnorm and qqline with the points from rnorm. 
+
+By just seeing the five normal probability plots, I concluded that it is decent to say that data of the male and female body temeperatures is closed enough to be normal. However, the two side (both left and right) tails are little bit skewed (away from qqline). 
+Also, I will conclude this data is heavy-tailed- Reference website is below: (http://stats.stackexchange.com/questions/101274/how-to-interpret-a-qq-plot).
+$\\$
+$\\$
+
+$I\ explained\ the\ formula\ and\ explanations\ in\ more\ detail\ on\ separate\ paper.$
+$\\$
+
+#A -b)
+Get male temperature only
+```{r}
+temp_mean2 <- mean(bodydata$temperature[1:65]) #Get mean of temperature
+temp_sd2 <- sd(bodydata$temperature[1:65]) #Get standard deviation of temeperature
+
+simulation_provider1b <- function(){
+  mean_simulation1b <- rnorm(n = length(bodydata$temperature[1:65]), mean = temp_mean2, sd = temp_sd2)
+
+  qqnorm(sort(mean_simulation1b), main = "Temparature Normality of male")
+  qqline(mean_simulation1b)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider1b()
+}
+```
+$\\$
+See more variability than gender combined, but still reasonable enough to prove normality (slight skeness on both tailes)
+$\\$
+
+#A -c)
+Get female temperature only
+```{r}
+temp_mean3 <- mean(bodydata$temperature[66:130]) #Get mean of temperature
+temp_sd3 <- sd(bodydata$temperature[66:130]) #Get standard deviation of temeperature
+
+simulation_provider1c <- function(){
+  mean_simulation1c <- rnorm(n = length(bodydata$temperature[66:130]), mean = temp_mean3,
+                             sd = temp_sd3)
+
+  qqnorm(sort(mean_simulation1c), main = "Temparature Normality of female")
+  qqline(mean_simulation1c)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider1c()
+}
+
+```
+
+$\\$
+See more variability than gender combined, but still reasonable enough to prove normality (slight skeness on both tailes)
+$\\$
+
+#B
+```{r}
+rate_mean <- mean(bodydata$rate) #Get mean of heart rate
+rate_sd <- sd(bodydata$rate) #Get standard deviation of heart rate
+
+simulation_provider2 <- function(){
+  mean_simulation2 <- rnorm(n = length(bodydata$rate), mean = rate_mean, sd = rate_sd)
+
+  qqnorm(sort(mean_simulation2), main = "Rate Normality of male and female")
+  qqline(mean_simulation2)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider2()
+}
+
+```
+
+I took the same procedure as in #A.
+
+By just seeing the five normal probability plots, I concluded that it is decent to say that data of the male and female body temeperatures is closed enough to be normal. However, the two side (both left and right) tails are little bit skewed (away from qqline). 
+Also, I will conclude this data is heavy-tailed- Reference website is below: (http://stats.stackexchange.com/questions/101274/how-to-interpret-a-qq-plot).
+
+$\\$
+$\\$
+
+#B -b)
+Get male rate only
+```{r}
+rate_mean2 <- mean(bodydata$rate[1:65]) #Get mean of heart rate
+rate_sd2 <- sd(bodydata$rate[1:65]) #Get standard deviation of heart rate
+
+simulation_provider2b <- function(){
+  mean_simulation2b <- rnorm(n = length(bodydata$rate[1:65]), mean = rate_mean2, sd = rate_sd2)
+
+  qqnorm(sort(mean_simulation2b), main = "Rate Normality of male")
+  qqline(mean_simulation2b)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider2b()
+}
+
+```
+$\\$
+See more variability than gender combined, but still reasonable enough to prove normality (slight skeness on both tailes - more skewed than the temeperature one)
+$\\$
+
+#B -c)
+Get female rate only
+```{r}
+rate_mean3 <- mean(bodydata$rate[66:130]) #Get mean of heart rate
+rate_sd3 <- sd(bodydata$rate[66:130]) #Get standard deviation of heart rate
+
+simulation_provider2c <- function(){
+  mean_simulation2c <- rnorm(n = length(bodydata$rate[66:130]), mean = rate_mean3, sd = rate_sd3)
+
+  qqnorm(sort(mean_simulation2c), main = "Rate Normality of female")
+  qqline(mean_simulation2c)
+}
+
+#Simulate samples 5 times
+for (i in 1:5){
+  simulation_provider2c()
+}
+
+
+```
+
+$\\$
+See more variability than gender combined, but still reasonable enough to prove normality (slight skeness on both tailes)
+$\\$ 
+
+#C -a)
+
+T-test is $\frac{\overline{X}\ -\ \mu}{\frac{S}{\sqrt{n}}}$. "t.test" is a great function embedded in R to get t-test of our data.
+
+####male body temeperature 
+```{r}
+t.test(x=bodydata$temperature[1:65], alternative ="two.sided", mu = 98.6, paired=F, var.equal = T,
+       conf.level = 0.95)
+
+```
+$\\$
+As we knew the data is the approximately normal, we try to use two-sided t-test for our statistics, and also get the 95% confidence intervalo f the data. Since the data is pretty big, it is almost closed to the value from z-test. 
+So, t $\approx$ -5.7 and the p value is super small ($\approx$ 3.08384e-07), so, p-value is nearly zero. Thus, we reject the null hypothesis. And, as I can see from the 95% confidence interval, 98.6 is not in the C.I.
+
+#C -b)
+####female body temperature
+```{r}
+t.test(x=bodydata$temperature[66:130], alternative ="two.sided", mu = 98.6, paired=F, var.equal = T,
+       conf.level = 0.95)
+
+```
+$\\$
+As we knew the data is the approximately normal, we try to use two-sided t-test for our statistics, and also get the 95% confidence intervalo f the data. Since the data is pretty big, it is almost closed to the value from z-test. 
+So, t $\approx$ -2.24 and the p value is $\approx$ 0.029, we reject the null hypothesis at $\alpha\ =$ 0.05, but do not reject the null hypothesis at $\alpha\ =$ 0.01. 
+
